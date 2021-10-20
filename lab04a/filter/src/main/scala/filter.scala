@@ -1,5 +1,5 @@
 import org.apache.spark.sql.functions._
-//import sys.process._
+import sys.process._
 
 object filter extends App {
 
@@ -11,7 +11,6 @@ object filter extends App {
   val df = spark.read.format("kafka").options(kafkaParams).load
 
   val jsonString = df
-    .sample(0.4)
     .select('value.cast("string"))
     .as[String]
 
@@ -39,8 +38,8 @@ object filter extends App {
     .partitionBy(PARTITION_KEY)
     .json("visits/buy/")
 
-  //"!hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
-  //"!hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
+  "hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
+  "hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
 
 }
 
