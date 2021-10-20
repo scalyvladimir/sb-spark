@@ -1,5 +1,5 @@
 import org.apache.spark.sql.functions._
-import sys.process._
+//import sys.process._
 
 object filter extends App {
 
@@ -47,8 +47,6 @@ object filter extends App {
     .mode("overwrite")
     .partitionBy(PARTITION_KEY)
     .save(dir + "/buy")
-  "hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
-  "hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
 
 }
 
