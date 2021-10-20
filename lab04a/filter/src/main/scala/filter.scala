@@ -3,7 +3,7 @@ import sys.process._
 
 object filter extends App {
 
-  spark.conf.set("spark.filter.offset", "1824400")
+  spark.conf.set("spark.filter.offset", 1824400)
 
   val kafkaParams = Map(
     "kafka.bootstrap.servers" -> "spark-master-1:6667",
