@@ -4,7 +4,7 @@ import sys.process._
 object filter extends App {
 
   val dir = spark.conf.get("spark.filter.output_dir_prefix")
-  spark.conf.set("spark.filter.offset", 1824400)
+  //spark.conf.set("spark.filter.offset", 1824400)
 
   val kafkaParams = Map(
     "kafka.bootstrap.servers" -> "spark-master-1:6667",
@@ -40,9 +40,8 @@ object filter extends App {
     .mode("overwrite")
     .partitionBy(PARTITION_KEY)
     .json(dir + "/buy")
-
-  "hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
-  "hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
+  //"hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
+  //"hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
 
 }
 
