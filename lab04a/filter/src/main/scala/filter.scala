@@ -4,11 +4,16 @@ import sys.process._
 object filter extends App {
 
   val dir = spark.conf.get("spark.filter.output_dir_prefix")
-  spark.conf.set("spark.filter.offset", 1824400)
+  val topic = spark.conf.get("spark.filter.topic_name")
+  val offset = spark.conf.get("spark.filter.offset")
+  if (offset != "earliest") {
+    offset = s"""{"$topic":{"0":$offset}}"""
+  }
 
   val kafkaParams = Map(
     "kafka.bootstrap.servers" -> "spark-master-1:6667",
-    "subscribe" -> "lab04_input_data"
+    "subscribe" -> "lab04_input_data",
+    "startingOffsets" -> offset
   )
 
   val df = spark.read.format("kafka").options(kafkaParams).load
@@ -42,8 +47,8 @@ object filter extends App {
     .mode("overwrite")
     .partitionBy(PARTITION_KEY)
     .save(dir + "/buy")
-  //"hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
-  //"hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
+  "hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
+  "hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
 
 }
 
