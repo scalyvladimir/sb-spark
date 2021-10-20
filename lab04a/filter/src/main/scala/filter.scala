@@ -1,9 +1,13 @@
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import sys.process._
 
 object filter{
 
   def main(args: Array[String]): Unit = {
+    val spark = SparkSession.builder.getOrCreate()
+    import spark.implicits._
+
     val dir = spark.conf.get("spark.filter.output_dir_prefix")
     val topic = spark.conf.get("spark.filter.topic_name")
     var offset = spark.conf.get("spark.filter.offset")
@@ -20,18 +24,18 @@ object filter{
     val df = spark.read.format("kafka").options(kafkaParams).load
 
     val jsonString = df
-      .select('value.cast("string"))
+      .select(col("value").cast("string"))
       .as[String]
 
     val parsed = spark
       .read
       .json(jsonString)
-      .withColumn("date", to_date(from_unixtime('timestamp / 1000)))
-      .withColumn("date", from_unixtime(unix_timestamp('date, "yyyy-MM-dd"), "yyyyMMdd"))
+      .withColumn("date", to_date(from_unixtime(col("timestamp") / 1000)))
+      .withColumn("date", from_unixtime(unix_timestamp(col("date"), "yyyy-MM-dd"), "yyyyMMdd"))
       .withColumn("p_date", col("date"))
 
-    val views = parsed.filter('event_type === "view")
-    val purchases = parsed.filter('event_type === "buy")
+    val views = parsed.filter(col("event_type") === "view")
+    val purchases = parsed.filter(col("event_type") === "buy")
 
     val PARTITION_KEY = "p_date"
 
