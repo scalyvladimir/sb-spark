@@ -1,5 +1,5 @@
 import org.apache.spark.sql.functions._
-import sys.process._
+//import sys.process._
 
 object filter extends App {
 
@@ -39,8 +39,8 @@ object filter extends App {
     .partitionBy(PARTITION_KEY)
     .json("visits/buy/")
 
-  "!hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
-  "!hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
+  //"!hdfs dfs -rm -r -f /user/vladimir.cherny/visits/view/_SUCCESS".!!
+  //"!hdfs dfs -rm -r -f /user/vladimir.cherny/visits/buy/_SUCCESS".!!
 
 }
 
