@@ -5,7 +5,7 @@ object filter extends App {
 
   val dir = spark.conf.get("spark.filter.output_dir_prefix")
   val topic = spark.conf.get("spark.filter.topic_name")
-  val offset = spark.conf.get("spark.filter.offset")
+  var offset = spark.conf.get("spark.filter.offset")
   if (offset != "earliest") {
     offset = s"""{"$topic":{"0":$offset}}"""
   }
