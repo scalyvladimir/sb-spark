@@ -134,17 +134,32 @@ object agg{
 
     // val res = join_mult_dfs(tmpDFs).withColumn("aov", 'revenue / 'purchases)
 
-    def createConsoleSink(df: DataFrame) = {
-      df
-        .writeStream
-        .outputMode("update")
-        .format("kafka")
-        .trigger(Trigger.ProcessingTime("5 seconds"))
-        .option("checkpointLocation", s"/tmp/$USER/chk")
-        .option("kafka.bootstrap.servers", "spark-master-1:6667")
-        .option("subscribe", OUT_TOPIC)
-        .option("maxOffsetsPerTrigger", 200)
-    }
+    // def createConsoleSink(df: DataFrame) = {
+    //     df
+    //     .writeStream
+    //     .outputMode("update")
+    //     .format("console")
+    //     .trigger(Trigger.ProcessingTime("5 seconds"))
+    //     //.option("checkpointLocation", s"/tmp/$USER/chk")
+    //     .option("truncate", "false")
+    //     //.option("numRows", "20")
+    // }
+
+    //val sink = createConsoleSink(res_df)
+    //val sq = sink.start
+
+
+
+    val query = df
+      .writeStream
+      .outputMode("update")
+      .format("kafka")
+      .trigger(Trigger.ProcessingTime("5 seconds"))
+      .option("checkpointLocation", s"/tmp/$USER/chk")
+      .option("kafka.bootstrap.servers", "spark-master-1:6667")
+      .option("subscribe", OUT_TOPIC)
+      .option("maxOffsetsPerTrigger", 200)
+      .start
 
     spark.stop
   }
