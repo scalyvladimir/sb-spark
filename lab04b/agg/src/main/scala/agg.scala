@@ -8,6 +8,7 @@ object agg{
 
   def main(args: Array[String]): Unit = {
 
+    val USER = "vladimir.cherny"
     val IN_TOPIC = "vladimir_cherny"
     val OUT_TOPIC = "vladimir_cherny_lab04b_out"
 
@@ -139,6 +140,7 @@ object agg{
         .outputMode("update")
         .format("kafka")
         .trigger(Trigger.ProcessingTime("5 seconds"))
+        .option("checkpointLocation", s"/tmp/$USER/chk")
         .option("kafka.bootstrap.servers", "spark-master-1:6667")
         .option("subscribe", OUT_TOPIC)
         .option("maxOffsetsPerTrigger", 200)
