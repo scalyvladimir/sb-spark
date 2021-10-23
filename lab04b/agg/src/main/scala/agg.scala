@@ -134,6 +134,8 @@ object agg{
 
     // val res = join_mult_dfs(tmpDFs).withColumn("aov", 'revenue / 'purchases)
 
+    val res = res_df.toJSON.select("value")
+
     // def createConsoleSink(df: DataFrame) = {
     //     df
     //     .writeStream
@@ -150,7 +152,7 @@ object agg{
 
 
 
-    val query = df
+    val query = res
       .writeStream
       .outputMode("update")
       .format("kafka")
@@ -160,8 +162,6 @@ object agg{
       .option("subscribe", OUT_TOPIC)
       .option("maxOffsetsPerTrigger", 200)
       .start
-
-    spark.stop
   }
 }
 
