@@ -17,7 +17,7 @@ object filter{
 
     val kafkaParams = Map(
       "kafka.bootstrap.servers" -> "spark-master-1:6667",
-      "subscribe" -> "lab04_input_data",
+      "subscribe" -> topic,
       "startingOffsets" -> offset
     )
 
