@@ -29,6 +29,7 @@ object features{
       .toDF
 
     val webLogs = input
+      .withColumn("timestamp", to_utc_timestamp(from_unixtime('timestamp / 1000), "UTC"))
       .na.drop(List("uid"))
       .withColumn("url", lower(callUDF("parse_url", col("url"), lit("HOST"))))
       .withColumn("url", regexp_replace(col("url"), "www.", ""))
@@ -68,46 +69,37 @@ object features{
 
     val domainFeatures = topDomainFeatures.union(inferriorDomainFeatures).withColumnRenamed("uid", "uid1")
 
-    val day_pivot_order = Seq("web_day_mon", "web_day_tue", "web_day_wed", "web_day_thu", "web_day_fri", "web_day_sat", "web_day_sun")
-
-    val daysWebMatrix = webLogs.withColumn("timestamp",
-      to_timestamp(col("timestamp")))
+    val daysWebMatrix = webLogs
       .withColumn("day_of_week", concat(lit("web_day_"), lower(date_format(col("timestamp"), "E"))))
       .drop("timestamp")
       .groupBy("uid", "day_of_week")
       .count
       .groupBy("uid")
-      .pivot("day_of_week", day_pivot_order)
+      .pivot("day_of_week")
       .sum("count")
       .na.fill(0)
       .withColumnRenamed("uid", "uid_days")
 
-    val hour_pivot_order = Seq.range(0, 24).map(x => "web_hour_" + x.toString)
-
-    val hoursWebMatrix = webLogs.withColumn("timestamp",
-      to_timestamp(col("timestamp")))
-      .withColumn("hour", concat(lit("web_hour_"), hour(col("timestamp"))))
+    val hoursWebMatrix = webLogs
+      .withColumn("hour", concat(lit("web_hour_"), date_format(col("timestamp"), "k")))
       .drop("timestamp")
       .groupBy("uid", "hour")
       .count
       .groupBy("uid")
-      .pivot("hour", hour_pivot_order)
+      .pivot("hour")
       .sum("count")
       .na.fill(0)
       .withColumnRenamed("uid", "uid_hours")
 
-    val fractWebHours = webLogs.withColumn("timestamp",
-      to_timestamp(col("timestamp")))
-      .withColumn("hour", hour(col("timestamp")))
+    val fractWebHours = webLogs
+      .withColumn("hour", date_format(col("timestamp"), "k"))
       .drop("timestamp")
-      .groupBy("uid", "hour")
-      .count
       .groupBy("uid")
       .agg(
-        (sum(when('hour >= 9 && 'hour < 18, 'hour).otherwise(0)) / sum('hour))
-          .as("web_fraction_work_hours"),
-        (sum(when('hour >= 18 && 'hour <= 23, 'hour).otherwise(0)) / sum('hour))
-          .as("web_fraction_evening_hours")
+          (sum(when('hour >= 9 && 'hour < 18, 1).otherwise(0)) / sum(when('hour >= 0 && 'hour <= 23, 1).otherwise(0)))
+              .as("web_fraction_work_hours"),
+          (sum(when('hour >= 18 && 'hour <= 23, 1).otherwise(0)) / sum(when('hour >= 0 && 'hour <= 23, 1).otherwise(0)))
+              .as("web_fraction_evening_hours")
       )
       .na.fill(0)
       .withColumnRenamed("uid", "uid_fract")
