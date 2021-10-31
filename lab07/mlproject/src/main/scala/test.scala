@@ -55,7 +55,19 @@ object test{
     val model = PipelineModel.load("log_reg")
 
     val dfPredict = model.transform(dfUnpacked)
-      .select('uid, 'res)
+      .withColumnRenamed("res", "gender_age")
+      .select('uid, 'gender_age)
+
+// dfPredict
+//     .selectExpr("CAST(uid AS STRING) AS key", "to_json(struct(*)) AS value")
+//     .writeStream
+//     .outputMode("update")
+//     .format("console")
+//     .trigger(Trigger.ProcessingTime("5 seconds"))
+//     //.option("checkpointLocation", s"/tmp/$USER/chk")
+//     .option("truncate", "false")
+//     //.option("numRows", "20")
+//     .start
 
     val query = dfPredict
       .selectExpr("CAST(uid AS STRING) AS key", "to_json(struct(*)) AS value")
